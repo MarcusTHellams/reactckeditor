@@ -1,91 +1,103 @@
 import React, {Component} from 'react';
+import Toggle from 'material-ui/Toggle';
+import PropTypes from 'prop-types';
 
-export default class EditorTest extends Component {
+function ToggleOn({on, children}) {
+    return on
+        ? <span>{children}</span>
+        : null;
+}
+function ToggleOff({on, children}) {
+    return on
+        ? null
+        : <span>{children}</span>;
+}
+function ToggleButton({
+    on,
+    toggle,
+    ...props
+}) {
+    return (<Toggle toggled={on} onToggle={toggle} {...props}/>);
+}
+
+class MyToggle extends Component {
+    static On = ToggleOn;
+    static Off = ToggleOff;
+    static Button = ToggleButton;
+    static defaultProps = {
+        onToggle: (arg) => {}
+    }
+    props;
+    state = {
+        on: false
+    };
+    setState;
     constructor(props) {
         super(props);
+        this.toggle = this
+            .toggle
+            .bind(this);
     }
-    componentDidMount() {
-        // window['CKEDITOR'].inline('editor1');
-        console.log(window['CKEDITOR'].config);
 
-        window['CKEDITOR'].on('instanceCreated', function (e) {
-            console.log(e);
-            let editor = e.editor;
-            let element = editor.element;
-
-            editor.on('configLoaded', function () {
-                editor.config.toolbarGroups = [
-                    {
-                        name: 'document',
-                        groups: ['mode', 'document', 'doctools']
-                    }, {
-                        name: 'clipboard',
-                        groups: ['clipboard', 'undo']
-                    }, {
-                        name: 'editing',
-                        groups: ['find', 'selection', 'spellchecker', 'editing']
-                    }, {
-                        name: 'forms',
-                        groups: ['forms']
-                    }, {
-                        name: 'basicstyles',
-                        groups: ['basicstyles', 'cleanup']
-                    }, {
-                        name: 'paragraph',
-                        groups: [
-                            'list',
-                            'indent',
-                            'blocks',
-                            'align',
-                            'bidi',
-                            'paragraph'
-                        ]
-                    }, {
-                        name: 'links',
-                        groups: ['links']
-                    }, {
-                        name: 'insert',
-                        groups: ['insert']
-                    }, {
-                        name: 'styles',
-                        groups: ['styles']
-                    }, {
-                        name: 'colors',
-                        groups: ['colors']
-                    }, {
-                        name: 'tools',
-                        groups: ['tools']
-                    }, {
-                        name: 'others',
-                        groups: ['others']
-                    }, {
-                        name: 'about',
-                        groups: ['about']
-                    }
-                ]
-
-                editor.config.removeButtons = 'Source,Save,NewPage,Print,Templates,Form,Checkbox,Radio,TextField,Textarea,Selec' +
-                        't,Button,ImageButton,HiddenField,Language,BidiRtl,BidiLtr,Flash,Smiley,PageBreak' +
-                        ',Iframe';
-
-            });
+    toggle() {
+        const {on} = this.state;
+        this.setState(({on}) => ({
+            on: !on
+        }), () => {
+            this
+                .props
+                .onToggle(on);
         });
-    }
-    componentWillUpdate() {
-        return false;
+
     }
     render() {
+        const children = React
+            .Children
+            .map(this.props.children, (child) => {
+                return React.cloneElement(child, {
+                    on: this.state.on,
+                    toggle: this.toggle
+                });
+            });
+        const {on} = this.state;
         return (
-            <div>
-                <div id="editor1" contentEditable="true">
-                    <p>
-                        Text Goes Here
-                    </p>
-                </div>
-                <div id="editor2" contentEditable="true">
-                    <p>
-                        Text 2 Goes Here
-                    </p>
+            <div>{children}</div>
+        );
+    }
+}
+
+export default class EditorTest extends Component {
+    props;
+    state = {};
+    setState;
+    constructor(props) {
+        super(props);
+
+    }
+
+    componentDidMount() {}
+
+    render() {
+        return (
+            <div
+                className="container"
+                style={{
+                "paddingTop": "50px"
+            }}>
+                <div className="row">
+                    <div className="col">
+                        <MyToggle
+                            onToggle={(on) => {
+                            console.log(on)
+                        }}>
+
+                            <MyToggle.On>
+                                The button is on</MyToggle.On>
+                            <MyToggle.Button/>
+                            <MyToggle.Off>
+                                The button is off</MyToggle.Off>
+                        </MyToggle>
+                    </div>
                 </div>
             </div>
         )

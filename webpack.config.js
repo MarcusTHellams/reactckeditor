@@ -15,7 +15,7 @@ module.exports = {
         filename: 'static/js/[name].js'
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.js'] // note if using webpack 1 you'd also need a '' in the array as well
+        extensions: ['.tsx', '.ts', '.js', '.json'] // note if using webpack 1 you'd also need a '' in the array as well
     },
     module: {
         rules: [
@@ -51,7 +51,9 @@ module.exports = {
                     {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['es2015', 'react'],
+                            presets: [
+                                'es2015'
+                            ],
                             // plugins: ['transform-decorators-legacy']
                         }
                     }
@@ -61,11 +63,6 @@ module.exports = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: ['es2015', 'react']
-                        }
-                    }, {
                         loader: 'ts-loader'
                     }
                 ]
@@ -97,9 +94,9 @@ module.exports = {
         historyApiFallback: true
     },
     plugins: [
-        new webpack
-            .optimize
-            .UglifyJsPlugin({sourceMap: true}),
+        // new webpack
+        //     .optimize
+        //     .UglifyJsPlugin({sourceMap: true}),
         extractSass,
         // new webpack     .optimize     .CommonsChunkPlugin({         names: [
         // 'common', 'vendor'         ],         minChunks: 2     }),
