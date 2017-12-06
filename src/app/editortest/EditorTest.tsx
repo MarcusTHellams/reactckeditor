@@ -1,24 +1,40 @@
 import React, {Component} from 'react';
 import Toggle from 'material-ui/Toggle';
 import PropTypes from 'prop-types';
+const TOGGLE_CONTEXT = '__toggle__';
 
-function ToggleOn({on, children}) {
+function ToggleOn({
+    children
+}, context) {
+    const {on} = context[TOGGLE_CONTEXT];
     return on
         ? <span>{children}</span>
         : null;
 }
-function ToggleOff({on, children}) {
+
+ToggleOn['contextTypes'] = {
+    [TOGGLE_CONTEXT]: PropTypes.object.isRequired
+};
+function ToggleOff({
+    children
+}, context) {
+    const {on} = context[TOGGLE_CONTEXT];
     return on
         ? null
         : <span>{children}</span>;
 }
-function ToggleButton({
-    on,
-    toggle,
-    ...props
-}) {
+
+ToggleOff['contextTypes'] = {
+    [TOGGLE_CONTEXT]: PropTypes.object.isRequired
+};
+function ToggleButton(props, context) {
+    const {on, toggle} = context[TOGGLE_CONTEXT];
     return (<Toggle toggled={on} onToggle={toggle} {...props}/>);
 }
+ToggleButton['contextTypes'] = {
+    [TOGGLE_CONTEXT]: PropTypes.object.isRequired
+};
+
 
 class MyToggle extends Component {
     static On = ToggleOn;
@@ -27,6 +43,9 @@ class MyToggle extends Component {
     static defaultProps = {
         onToggle: (arg) => {}
     }
+    static childContextTypes = {
+        [TOGGLE_CONTEXT]: PropTypes.object.isRequired
+    };
     props;
     state = {
         on: false
@@ -50,20 +69,27 @@ class MyToggle extends Component {
         });
 
     }
+    getChildContext() {
+        return {
+            [TOGGLE_CONTEXT]: {
+                on: this.state.on,
+                toggle: this.toggle
+            }
+        }
+    }
     render() {
-        const children = React
-            .Children
-            .map(this.props.children, (child) => {
-                return React.cloneElement(child, {
-                    on: this.state.on,
-                    toggle: this.toggle
-                });
-            });
-        const {on} = this.state;
         return (
-            <div>{children}</div>
+            <div>{this.props.children}</div>
         );
     }
+}
+
+const YourToggle = ({on, toggle})=>{
+    return (
+        <button onClick={toggle}>
+            {on ? 'On': 'Off'}
+        </button>
+    );
 }
 
 export default class EditorTest extends Component {
@@ -91,11 +117,14 @@ export default class EditorTest extends Component {
                             console.log(on)
                         }}>
 
-                            <MyToggle.On>
-                                The button is on</MyToggle.On>
-                            <MyToggle.Button/>
-                            <MyToggle.Off>
-                                The button is off</MyToggle.Off>
+                            <div>
+                                <MyToggle.On>
+                                    The button is on</MyToggle.On>
+                                <MyToggle.Button/>
+                                <MyToggle.Off>
+                                    The button is off</MyToggle.Off>
+                            </div>
+
                         </MyToggle>
                     </div>
                 </div>
